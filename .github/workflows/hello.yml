@@ -1,0 +1,31 @@
+name: Hello, GitHub Actions
+
+on:
+  push:                     # triggers on any push to any branch
+    branches: [ "**" ]
+  workflow_dispatch:        # (optional) lets you run it manually from the UI
+
+jobs:
+  greet:                    # job ID (you can name it anything)
+    runs-on: ubuntu-latest  # runner VM image
+    steps:                  # ordered list of steps in this job
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Say hello (single shell command)
+        run: echo "Hello from GitHub Actions!"
+
+      - name: Multi-line run block
+        run: |
+          echo "Repo: $GITHUB_REPOSITORY"
+          echo "Branch/Ref: $GITHUB_REF"
+          echo "Actor: $GITHUB_ACTOR"
+
+      - name: Use an action from the Marketplace
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run some Node (example)
+        run: node -e "console.log('Node is ready')"
