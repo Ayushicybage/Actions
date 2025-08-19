@@ -16,30 +16,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Set up JDK (example: Java project, you can replace with Node/other setup)
+      # 2️⃣ Set up JDK with built-in Maven caching
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
+          cache: maven   # ✅ replaces separate cache step
 
-      # 3️⃣ Cache dependencies (Maven example)
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-            path: ~/.m2/repository
-            key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-
-
-      # 4️⃣ Install dependencies & build
+      # 3️⃣ Install dependencies & build (skip tests here)
       - name: Build with Maven
         run: mvn clean install -DskipTests
+        working-directory: ./
 
-      # 5️⃣ Run tests
+      # 4️⃣ Run tests
       - name: Run Unit Tests
         run: mvn test
+        working-directory: ./
 
-      # 6️⃣ SonarQube Scan
+      # 5️⃣ SonarQube Scan
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@v2
         with:
@@ -48,11 +43,12 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
-      # 7️⃣ Package distributable (JAR in case of Java)
+      # 6️⃣ Package distributable (JAR)
       - name: Package Application
         run: mvn package -DskipTests
+        working-directory: ./
 
-      # 8️⃣ Upload artifact (distributable JAR, WAR, ZIP, etc.)
+      # 7️⃣ Upload artifact (JAR, WAR, ZIP, etc.)
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
